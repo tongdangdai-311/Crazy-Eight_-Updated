@@ -47,7 +47,7 @@ import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsExcepti
  * @version 2.0 2025-03-30 track changes to all classes
  * @version 3.0 2025-06-26 track changes to all classes
  * 
- * @author Your Name
+ * @author Tong Dang
  * 
  * @version 4.0 2025-11-03 modifications for your implementation
  */
@@ -128,10 +128,14 @@ public final class DiscardPile extends Pile
         return super.removeTopCard() ;
 
         }   // end takeTopCard()
-    
-    public void discardCard(Card card) {
-        this.addToTop(card);
-    }
+
+
+    public void discardCard( Card card )
+        {
+
+        this.addToTop( card ) ;
+
+        }
 
 
     /**
