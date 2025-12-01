@@ -128,6 +128,10 @@ public final class DiscardPile extends Pile
         return super.removeTopCard() ;
 
         }   // end takeTopCard()
+    
+    public void discardCard(Card card) {
+        this.addToTop(card);
+    }
 
 
     /**
