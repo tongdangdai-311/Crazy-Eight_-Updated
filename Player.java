@@ -42,6 +42,8 @@ import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsExcepti
 import edu.wit.scds.ds.lists.app.card_game.your_game.pile.Hand ;
 import edu.wit.scds.ds.lists.app.card_game.your_game.pile.Meld ;
 import edu.wit.scds.ds.lists.app.card_game.your_game.pile.Stock ;
+import edu.wit.scds.ds.lists.app.card_game.your_game.pile.DiscardPile;
+
 
 import java.io.File ;
 import java.io.FileNotFoundException ;
@@ -61,7 +63,7 @@ import java.util.Scanner ;
  * @version 2.0 2025-06-28 track changes to other classes
  * @version 2.1 2025-11-04 track changes to other classes
  * 
- * @author Your Name
+ * @author Tong Dang
  * 
  * @version 3.0 2025-11-03 modifications for your game
  */
@@ -77,7 +79,7 @@ public final class Player
     private final Hand hand ;
 
     /** groups of cards collected during play */
-    private final List<Meld> melds ;
+   
 
     /** player's name */
     public final String name ;
@@ -101,7 +103,7 @@ public final class Player
 
         this.hand = new Hand() ;
 
-        this.melds = new ArrayList<>() ;
+        
 
         }   // end constructor
 
@@ -109,6 +111,9 @@ public final class Player
     /*
      * public methods
      */
+    public Hand getHand() {
+    	return this.hand;
+    }
 
 
     /**
@@ -126,20 +131,7 @@ public final class Player
         }  // end dealtACard()
 
 
-    /**
-     * retrieve the number of melds
-     *
-     * @return the number of melds
-     *
-     * @since 2.0
-     */
-    public int getMeldCount()
-        {
-
-        return this.melds.size() ;
-
-        }   // end getMeldCount()
-
+   
 
     /**
      * Remove an unspecified card from our hand
@@ -215,34 +207,7 @@ public final class Player
         }   // end revealHand()
 
 
-    /**
-     * text describing the contents of the player's melds
-     * <p>
-     * note that cards' orientation is unchanged
-     *
-     * @return a string containing the cards in the player's melds
-     *
-     * @since 2.0
-     */
-    public String revealMelds()
-        {
-
-        if ( this.melds.size() == 0 )
-            {
-            return "none" ;
-            }
-
-        final ArrayList<String> meldsText = new ArrayList<>( this.melds.size() ) ;
-
-        for ( final Meld aMeld : this.melds )
-            {
-            meldsText.add( aMeld.revealAll().toString() ) ;
-            }
-
-        return meldsText.toString() ;
-
-        }   // end revealMelds()
-
+  
 
     /**
      * Remove all cards from our hand and our collected cards
@@ -255,74 +220,72 @@ public final class Player
         {
 
         // local temporary class (pile) to hold our cards
-        class AllCards extends Pile
-            { /* temporary collection */ }
+       final Pile allCards = new Pile() {};
+       
+        // we may have cards in our hand 
 
-        final AllCards allCards = new AllCards() ;
+        allCards.moveCardsToBottom( this.hand );
+        this.hand.clear();
 
-        // we may have cards in our hand and we may have 1 or more melds
-
-        allCards.moveCardsToBottom( this.hand ) ;
-
-        for ( final Pile aMeld : this.melds )
-            {
-            allCards.moveCardsToBottom( aMeld ) ;
-            }
-
-        this.melds.clear() ;
-
-        // assertion: we have no cards, any we had will be returned via allCards
+      
 
         return allCards ;
 
         }  // end turnInAllCards()
 
 
-    /**
-     * save the cards won as a meld
-     *
-     * @param cardsWon
-     *     the cards this player won
-     *
-     * @since 2.0
-     */
-    public void wonRound( final Pile cardsWon )
-        {
-
-        // make sure we're given a Meld
-        if ( ! ( cardsWon instanceof final Meld meldWon ) )
-            {
-            throw new IllegalStateException( String.format( "require argument of type Meld but is %s",
-                                                            cardsWon.getClass()
-                                                                    .getSimpleName() ) ) ;
-            }
-
-        cardsWon.revealAll() ;
-
-        this.melds.add( meldWon ) ;
-
-        }   // end cardsWon()
-
+   
 
     /*
      * utility methods
      */
 
 
+
     @Override
-    public String toString()
-        {
-
-//        final String meldsText = String.format( "%s", this.melds ) ;
-        return String.format( "%nPlayer: %s%n\thand: %s%n\tmelds: %s",
-                              this.name,
-                              revealHand(),
-                              revealMelds().replace( ", [", "[" )
-                                           .replace( "[[", "[" )
-                                           .replace( "]]", "]" )
-                                           .replace( "[", "\n\t\t[" ) ) ;
-
-        }   // end toString()
+    public String toString() {
+        return String.format("%nPlayer: %s%n  Hand (%d cards): %s%n",
+                             this.name,
+                             this.hand.cardCount(),
+                             this.hand.cardCount() == 0 ? "empty" : this.revealHand());
+    }
+    
+    
+    
+    
+    /**
+     * Optional helper: attempt to draw until a matching card is found.
+     */
+    public boolean takeTurn(final Stock stock, final DiscardPile discard) {
+        while (!stock.isEmpty()) {
+            try {
+                final Card flipped = stock.drawTopCard();
+                // find a match in hand (by rank or suit)
+                Card match = null;
+                for (final Object o : this.hand) {
+                    // hand is iterable of CardBase; cast to Card
+                    final Card c = (Card) o;
+                    if (c.rank == flipped.rank || c.suit == flipped.suit) {
+                        match = c;
+                        break;
+                    }
+                }
+                if (match != null) {
+                    this.hand.removeCard(match);
+                    discard.addCard(flipped.reveal());
+                    System.out.printf("%s matched %s and discarded the pair!%n", name, flipped);
+                    return true;
+                } else {
+                    this.hand.addToTop(flipped);
+                    System.out.printf("%s drew %s (no match)%n", name, flipped);
+                }
+            } catch (final NoCardsException e) {
+                break;
+            }
+        }
+        System.out.printf("%s: Stock is empty! Turn ends.%n", name);
+        return false;
+    }
 
 
     /*
@@ -416,4 +379,9 @@ public final class Player
 
         }   // end main()
 
-    }   // end class Player
+
+    public String getName() {
+        return this.name;
+    }
+
+    } 
