@@ -63,7 +63,7 @@ import java.util.Scanner ;
  * @version 2.0 2025-06-28 track changes to other classes
  * @version 2.1 2025-11-04 track changes to other classes
  * 
- * @author Tong Dang
+ * @author Jonathan Wu
  * 
  * @version 3.0 2025-11-03 modifications for your game
  */
@@ -112,7 +112,7 @@ public final class Player
      * public methods
      */
     public Hand getHand() {
-    	return this.hand;
+        return this.hand;
     }
 
 
@@ -301,82 +301,6 @@ public final class Player
      */
     public static void main( final String[] args )
         {
-
-        // we'll sort by rank only and treat ace as highest value card
-        Card.setCompareOnAttributes( CompareOn.COMPARE_RANK_ONLY ) ;
-        Rank.setUseAltOrder( true ) ;
-
-        final Deck testDeck = new Deck() ;
-
-        // create the stock initially populated with all the cards from the deck
-        final Stock testStock = new Stock( testDeck ) ;
-
-        // put any jokers back in the deck
-        final Card lookupJoker = new Card( JOKER ) ;
-        Card foundJoker ;
-
-        while ( ( foundJoker = testStock.removeCard( lookupJoker ) ) != null )
-            {
-            testDeck.addToBottom( foundJoker ) ;
-            }
-        
-        // shuffle them
-        testStock.shuffle() ;
-
-        testStock.revealAll() ;
-        System.out.printf( "Stock: %s%n%n", testStock ) ;
-        testStock.hideAll() ;
-
-        testDeck.revealAll() ;
-        System.out.printf( "Deck: %s%n%n", testDeck ) ;
-        testDeck.hideAll() ;
-
-
-        final Player testPlayer = new Player( "tester" ) ;
-
-        System.out.printf( "start: %s%n", testPlayer ) ;
-
-        for ( int i = 1 ; i <= 5 ; i++ )
-            {
-            final Card dealt = testStock.drawTopCard().reveal() ;
-
-            testPlayer.dealtACard( dealt ) ;
-            }
-
-        System.out.printf( "%ndealt: %s%n", testPlayer ) ;
-
-        for ( int i = 1 ; i <= 3 ; i++ )
-            {
-            final Pile aMeld = new Meld().setDefaultFaceUp() ;
-
-            for ( int j = 1 ; j <= 5 ; j++ )
-                {
-                aMeld.addToTop( testStock.drawTopCard() ) ;
-                }
-
-            testPlayer.wonRound( aMeld ) ;
-            }
-
-        System.out.printf( "%nwith some melds: %s%n", testPlayer ) ;
-
-
-        // the following is the correct way to access a file in the data folder
-        System.out.printf( "%n%naccessing a file in the data folder:%n%n" ) ;
-
-        try ( Scanner input = new Scanner( new File( "./data/readme.txt" ) ) ; )
-            {
-
-            while ( input.hasNextLine() )
-                {
-                System.out.printf( "%s%n", input.nextLine() ) ;
-                }
-
-            }
-        catch ( final FileNotFoundException e )
-            {
-            System.err.printf( "failed to open readme.txt:%n%s%n", e ) ;
-            }
-
         }   // end main()
 
 

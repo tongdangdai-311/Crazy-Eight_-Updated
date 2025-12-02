@@ -33,14 +33,13 @@ package edu.wit.scds.ds.lists.app.card_game.your_game.pile ;
 import static edu.wit.scds.ds.lists.app.card_game.universal_base.support.Orientation.FACE_DOWN ;
 
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card ;
-import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank;
-import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit;
+import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank ;
+import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
-import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase;
+import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase ;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsException ;
 
 import java.util.Collections ;
-import java.util.Iterator;
 
 /**
  * Representation of a hand of cards
@@ -58,7 +57,7 @@ import java.util.Iterator;
  *     {@code Collections.[max,min]()}
  *     </ul>
  * 
- * @author Your Name
+ * @author Jonathan Wu
  * 
  * @version 4.0 2025-11-03 modifications for your implementation
  */
@@ -88,55 +87,94 @@ public final class Hand extends Pile
      */
 
 
-   
-    
-    
-   
-   
-    
+    /**
+     * retrieve and remove the highest value card in the hand
+     *
+     * @return the highest value card
+     *
+     * @throws NoCardsException
+     *     if the hand is empty
+     */
+    public Card removeHighestCard() throws NoCardsException
+        {
+
+        if ( isEmpty() )
+            {
+            throw new NoCardsException() ;
+            }
+
+        return removeCard( Collections.max( super.cards ) ) ;
+
+        }  // end removeHighestCard()
+
 
     /**
-     * Returns true if player has a legal play
+     * retrieve and remove the lowest value card in the hand
+     *
+     * @return the lowest value card
+     *
+     * @throws NoCardsException
+     *     if the hand is empty
      */
-    public boolean canPlay(Card topCard, Suit currentSuit) {
+    public Card removeLowestCard() throws NoCardsException
+        {
 
-        for (CardBase base : this.cards) {
-            Card c = (Card) base; // SAFE cast
+        if ( isEmpty() )
+            {
+            throw new NoCardsException() ;
+            }
 
-            // 8 is wild
-            if (c.rank == Rank.EIGHT) return true;
+        return removeCard( Collections.min( super.cards ) ) ;
 
-            // Match declared suit
-            if (c.suit == currentSuit) return true;
+        }  // end removeLowestCard()
 
-            // Match top card suit or rank
-            if (c.suit == topCard.suit) return true;
-            if (c.rank == topCard.rank) return true;
 
-            // Queen of Spades special rule
-            if (c.rank == Rank.QUEEN && c.suit == Suit.SPADES &&
-                    (topCard.suit == Suit.SPADES || topCard.rank == Rank.QUEEN))
-                return true;
+    public boolean canPlay( Card topCard,
+                            Suit currentSuit )
+        {
+
+        for ( CardBase base : this.cards )
+            {
+            Card c = (Card) base ;
+
+            if ( c.rank == Rank.EIGHT )
+                return true ;
+            if ( c.suit == currentSuit )
+                return true ;
+            if ( c.suit == topCard.suit )
+                return true ;
+            if ( c.rank == topCard.rank )
+                return true ;
+
+            if ( c.rank == Rank.QUEEN && c.suit == Suit.SPADES &&
+                 ( topCard.suit == Suit.SPADES || topCard.rank == Rank.QUEEN ) )
+                return true ;
+            }
+
+        return false ;
+
         }
 
-        return false;
-    }
 
-    /**
-     * Draw until you can play
-     */
-    public void drawUntilCanPlay(Stock stock, Card topCard, Suit currentSuit) {
-        System.out.print("  No legal play — drawing");
+    public void drawUntilCanPlay( Stock stock,
+                                  Card topCard,
+                                  Suit currentSuit )
+        {
 
-        while (!canPlay(topCard, currentSuit) && !stock.isEmpty()) {
-            Card drawn = stock.drawTopCard();
-            this.addToTop(drawn);
-            System.out.print(".");
+        System.out.print( "  No legal play — drawing" ) ;
+
+        while ( !canPlay( topCard, currentSuit ) && !stock.isEmpty() )
+            {
+            Card drawn = stock.drawTopCard() ;
+            this.addToTop( drawn ) ;
+            System.out.print( "." ) ;
+            }
+
+        System.out.println( " ready!" ) ;
+
         }
-        System.out.println(" ready!");
-    }
 
-        // DO NOT TOUCH main() — required by tests
+
     /**
      * (optional) test driver
      *
